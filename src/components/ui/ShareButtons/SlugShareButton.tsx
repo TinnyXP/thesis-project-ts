@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
   LineShareButton,
@@ -19,12 +19,7 @@ interface ShareButtonsProps {
   title: string;
 }
 
-interface ShareData {
-  title: string;
-  url: string;
-}
-
-export default function SlugShareButton({ url, title }: ShareButtonsProps) {
+export default function SlugShareButton({ url }: ShareButtonsProps) {
   const link = typeof window !== "undefined" ? window.location.href : "";
 
   const isMobile = () => {

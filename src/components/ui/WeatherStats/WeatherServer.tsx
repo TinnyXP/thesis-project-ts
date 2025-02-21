@@ -10,7 +10,7 @@ export const revalidate = 30; // Revalidate ทุก 30 วินาที
 
 async function fetchAirQuality(): Promise<AirQuality> {
   const response = await fetch(
-    "http://api.waqi.info/feed/A421915/?token=06605c96a372586b4da18f3e888e48e74ec192b1"
+    process.env.NEXT_PUBLIC_API_PM25 as string
   );
   const data = await response.json();
 
