@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card, CardBody, CardFooter, Image, Pagination } from "@heroui/react";
+import { Card, CardBody, CardFooter, Chip, Image, Pagination } from "@heroui/react";
 
 export interface Post {
   _id: string;
@@ -44,29 +44,41 @@ export default function NewsCardClient({ posts }: { posts: Post[] }) {
         {posts.map((post) => {
           // ถ้าไม่มี category หรือไม่มี slug ให้ใช้ uncategorized
           const categorySlug = post.categories?.[0]?.slug || 'uncategorized';
-          
+
           return (
-            <Card 
+            <Card
               key={post._id}
-              isPressable 
+              isPressable
               isBlurred
               onPress={() => window.location.href = `/blog/${categorySlug}/${post.slug.current}`}
               className="border-none bg-background/60 dark:bg-default-100/50"
             >
               <CardBody className="overflow-visible p-1.5">
-                {post.mainImage?.asset?.url ? (
-                  <Image
-                    alt={post.title}
-                    className="object-cover rounded-xl w-full h-auto"
-                    src={`${post.mainImage.asset.url}?w=768&auto=format`}
-                    width={330}
-                    height={180}
-                  />
-                ) : (
-                  <div className="w-[330px] h-[180px] bg-gray-200 rounded-xl flex items-center justify-center">
-                    <p className="text-gray-500 text-sm">No image available</p>
+                <div className="relative">
+                  {post.mainImage?.asset?.url ? (
+                    <Image
+                      alt={post.title}
+                      className="object-cover rounded-xl w-full h-auto"
+                      src={`${post.mainImage.asset.url}?w=768&auto=format`}
+                      width={330}
+                      height={180}
+                    />
+                  ) : (
+                    <div className="w-[330px] h-[180px] bg-gray-200 rounded-xl flex items-center justify-center">
+                      <p className="text-gray-500 text-sm">No image available</p>
+                    </div>
+                  )}
+                  <div className="absolute bottom-1 left-1 flex gap-2 z-10">
+                    <Chip size="sm" color="primary" variant="solid"
+                      classNames={{
+                        base: "bg-gradient-to-br from-primary to-emerald-600",
+                        content: "text-white",
+                      }}
+                    >
+                      {post.categories?.[0]?.title || 'Uncategorized'}
+                    </Chip>
                   </div>
-                )}
+                </div>
               </CardBody>
               <CardFooter className="flex justify-between items-center">
                 <div className="flex flex-col text-left">
@@ -75,9 +87,6 @@ export default function NewsCardClient({ posts }: { posts: Post[] }) {
                     <small className="text-default-500">
                       {new Date(post.publishedAt).toLocaleDateString()}
                     </small>
-                    <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 rounded-full">
-                      {post.categories?.[0]?.title || 'Uncategorized'}
-                    </span>
                   </div>
                 </div>
               </CardFooter>
@@ -85,13 +94,13 @@ export default function NewsCardClient({ posts }: { posts: Post[] }) {
           );
         })}
       </div>
-      <Pagination 
-        variant="light" 
-        initialPage={1} 
-        total={totalPages} 
-        page={currentPage} 
-        onChange={setCurrentPage} 
-        classNames={{ item: "box-border" }} 
+      <Pagination
+        variant="light"
+        initialPage={1}
+        total={totalPages}
+        page={currentPage}
+        onChange={setCurrentPage}
+        classNames={{ item: "box-border" }}
       />
     </div>
   );

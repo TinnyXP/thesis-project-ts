@@ -10,6 +10,7 @@ import imageUrlBuilder from "@sanity/image-url";
 import { PortableTextReactComponents } from "@portabletext/react";
 
 import { Link } from "@heroui/react";
+import { FaQuoteLeft } from "react-icons/fa6";
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
   _id,
@@ -39,9 +40,22 @@ const options = { next: { revalidate: 30 } };
 
 const portableTextComponents: Partial<PortableTextReactComponents> = {
   block: {
-    h1: ({ children }) => <h1 className="text-2xl md:text-3xl font-bold mb-3">{children}</h1>,
-    h2: ({ children }) => <h2 className="text-2xl font-semibold mb-3">{children}</h2>,
+    h1: ({ children }) => <h1 className="text-3xl font-bold mb-3">{children}</h1>,
+    h2: ({ children }) => <h2 className="text-2xl font-bold mb-3">{children}</h2>,
+    h3: ({ children }) => <h3 className="text-xl font-bold mb-3">{children}</h3>,
+    h4: ({ children }) => <h4 className="text-lg font-bold mb-3">{children}</h4>,
     normal: ({ children }) => <p className="text-base leading-relaxed">{children}</p>,
+    blockquote: ({ children }) => (
+      <blockquote className="relative pl-6 pr-2 my-6 bg-zinc-50 dark:bg-zinc-900 rounded-lg">
+        <div className="absolute top-0 left-0 w-1 h-full bg-primary-color rounded-l-lg"></div>
+        <div className="relative">
+          <FaQuoteLeft className="absolute -top-2 -left-4 h-4 w-4 text-primary-color" fill="currentColor" />
+          <div className="text-lg text-gray-700 dark:text-gray-300 italic">
+            {children}
+          </div>
+        </div>
+      </blockquote>
+    ),
   },
   marks: {
     strong: ({ children }) => <strong className="font-bold">{children}</strong>,
@@ -64,10 +78,6 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
     image: ({ value }) => {
       const imageUrl = urlFor(value)?.width(1366).auto("format").url();
       const originalUrl = value?.asset?._ref ? urlFor(value)?.url() ?? null : null;
-
-      // console.log(imageUrl)
-      // console.log(originalUrl)
-
       return imageUrl ? (
         <ImageModal
           src={imageUrl}

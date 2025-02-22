@@ -7,8 +7,8 @@ export { default as ScrollToTop } from './layout/ScrollToTop'
 export { default as ToggleTheme } from './layout/ToggleTheme'
 
 //Card
-export { default as CardServer } from './ui/Cards/TestCard/CardServer'
-export { default as CardClient } from './ui/Cards/TestCard/CardClient'
+export { default as CardServer } from './ui/Cards/SanityCards/AllCards/CardServer'
+export { default as CardClient } from './ui/Cards/SanityCards/AllCards/CardClient'
 
 //CategoryCard
 export { default as CategoryCardServer } from './ui/Cards/SanityCards/Category/CategoryCardServer'
