@@ -17,10 +17,14 @@ const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
   slug,
   publishedAt,
   body,
+  "categories": categories[]->{
+    title,
+    "slug": coalesce(slug.current, 'uncategorized')
+  },
   mainImage {
-    asset->{
-      url,
-      metadata { lqip, dimensions }
+    asset-> {
+      _ref,
+      url
     }
   }
 }`;
@@ -98,7 +102,7 @@ const PostNotFound = () => (
 export default async function PostPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ category: string; slug: string }>;
 }) {
   // ตรวจสอบว่า params.slug มีค่าหรือไม่
   const resolvedParams = await params;
@@ -114,10 +118,11 @@ export default async function PostPage({
       return <PostNotFound />;
     }
 
-    const mainImageUrl = urlFor(post.mainImage)?.width(1600).auto("format").url();
-    const originalMainImageUrl = post?.mainImage?.asset?.url;
+    const mainImageUrl = post.mainImage?.asset?.url && `${post.mainImage.asset.url}?w=1600&auto=format`;
+    const originalMainImageUrl = post.mainImage?.asset?.url || null;
 
-    const fullUrl = `https://thesis.trinpsri.net/${post.slug.current}`;
+    const categorySlug = post.categories?.[0]?.slug || 'uncategorized';
+    const fullUrl = `https://thesis.trinpsri.net/${categorySlug}/${post.slug.current}`;
 
     return (
       <div>
@@ -128,6 +133,7 @@ export default async function PostPage({
           <SlugBreadcrumb
             postTitle={post.title}
             postSlug={post.slug.current}
+            category={post.categories?.[0]}
           />
 
           <div className="prose prose-2xl dark:prose-invert prose-zinc">

@@ -9,6 +9,10 @@ export interface Post {
   slug: { current: string };
   publishedAt: string;
   mainImage?: { asset: { url: string } };
+  categories: Array<{
+    title: string;
+    slug: string;  // เปลี่ยนจาก slug object เป็น string เพราะใช้ coalesce ใน query แล้ว
+  }>;
 }
 
 export default function NewsCardClient({ posts }: { posts: Post[] }) {
@@ -37,38 +41,58 @@ export default function NewsCardClient({ posts }: { posts: Post[] }) {
   return (
     <div className="flex flex-col items-center gap-5">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {posts.map((post) => (
-          <Card key={post._id}
-            isPressable isBlurred
-            onPress={() => window.location.href = `/${post.slug.current}`}
-            className="border-none bg-background/60 dark:bg-default-100/50"
-          >
-            <CardBody className="overflow-visible p-1.5">
-              {post.mainImage?.asset?.url ? (
-                <Image
-                  alt={post.title}
-                  className="object-cover rounded-xl w-full h-auto"
-                  src={`${post.mainImage.asset.url}?w=768&auto=format`}
-                  width={330}
-                  height={180}
-                />
-              ) : (
-                <div className="w-[330px] h-[180px] bg-gray-200 rounded-xl flex items-center justify-center">
-                  <p className="text-gray-500 text-sm">No image available</p>
+        {posts.map((post) => {
+          // ถ้าไม่มี category หรือไม่มี slug ให้ใช้ uncategorized
+          const categorySlug = post.categories?.[0]?.slug || 'uncategorized';
+          
+          return (
+            <Card 
+              key={post._id}
+              isPressable 
+              isBlurred
+              onPress={() => window.location.href = `/blog/${categorySlug}/${post.slug.current}`}
+              className="border-none bg-background/60 dark:bg-default-100/50"
+            >
+              <CardBody className="overflow-visible p-1.5">
+                {post.mainImage?.asset?.url ? (
+                  <Image
+                    alt={post.title}
+                    className="object-cover rounded-xl w-full h-auto"
+                    src={`${post.mainImage.asset.url}?w=768&auto=format`}
+                    width={330}
+                    height={180}
+                  />
+                ) : (
+                  <div className="w-[330px] h-[180px] bg-gray-200 rounded-xl flex items-center justify-center">
+                    <p className="text-gray-500 text-sm">No image available</p>
+                  </div>
+                )}
+              </CardBody>
+              <CardFooter className="flex justify-between items-center">
+                <div className="flex flex-col text-left">
+                  <p className="w-full max-w-[320px] truncate text-sm uppercase font-bold">{post.title}</p>
+                  <div className="flex items-center gap-2">
+                    <small className="text-default-500">
+                      {new Date(post.publishedAt).toLocaleDateString()}
+                    </small>
+                    <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 rounded-full">
+                      {post.categories?.[0]?.title || 'Uncategorized'}
+                    </span>
+                  </div>
                 </div>
-              )}
-            </CardBody>
-            <CardFooter className="flex justify-between items-center">
-              <div className="flex flex-col text-left">
-                <p className="w-full max-w-[320px] truncate text-sm uppercase font-bold">{post.title}</p>
-                <small className="text-default-500">Create at {new Date(post.publishedAt).toLocaleDateString()}</small>
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
-      <Pagination variant="light" initialPage={1} total={totalPages} page={currentPage} onChange={setCurrentPage} classNames={{ item: "box-border" }} />
+      <Pagination 
+        variant="light" 
+        initialPage={1} 
+        total={totalPages} 
+        page={currentPage} 
+        onChange={setCurrentPage} 
+        classNames={{ item: "box-border" }} 
+      />
     </div>
-
   );
 }

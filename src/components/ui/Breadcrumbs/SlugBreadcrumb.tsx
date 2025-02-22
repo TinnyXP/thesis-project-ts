@@ -6,18 +6,29 @@ import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
 interface BreadcrumbsProps {
   postTitle: string;
   postSlug: string;
+  category?: {
+    title: string;
+    slug: string;
+  };
 }
 
 export default function PostBreadcrumbs({
   postTitle,
-  postSlug
+  postSlug,
+  category
 }: BreadcrumbsProps) {
+
+  const categorySlug = category?.slug || 'uncategorized';
+  const categoryTitle = category?.title || 'Uncategorized';
+
   return (
     <Breadcrumbs>
       <BreadcrumbItem href="/">Home</BreadcrumbItem>
-      <BreadcrumbItem href="/blog">Blog</BreadcrumbItem>
+      <BreadcrumbItem href={`/blog/${categorySlug}`}>
+        {categoryTitle}
+      </BreadcrumbItem>
       <BreadcrumbItem
-        href={`/blog/${postSlug}`}
+        href={`/blog/${categorySlug}/${postSlug}`}
         isCurrent
       >
         {/* ใช้วิธีเดียวกับตัวอย่างของคุณ */}

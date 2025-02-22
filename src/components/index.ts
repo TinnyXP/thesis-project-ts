@@ -10,6 +10,10 @@ export { default as ToggleTheme } from './layout/ToggleTheme'
 export { default as CardServer } from './ui/Cards/TestCard/CardServer'
 export { default as CardClient } from './ui/Cards/TestCard/CardClient'
 
+//CategoryCard
+export { default as CategoryCardServer } from './ui/Cards/SanityCards/Category/CategoryCardServer'
+export { default as CategoryCardClient } from './ui/Cards/SanityCards/Category/CategoryCardClient'
+
 export { default as WeatherServer } from './ui/WeatherStats/WeatherServer'
 export { default as WeatherClient } from './ui/WeatherStats/WeatherClient'
 
