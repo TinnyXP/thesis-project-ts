@@ -18,3 +18,6 @@ export { default as SlugBreadcrumb } from './ui/Breadcrumbs/SlugBreadcrumb'
 
 //ShareButton
 export { default as SlugShareButton } from './ui/ShareButtons/SlugShareButton'
+
+//Modals
+export { default as ImageModal } from './ui/Modals/ImageModal'

@@ -1,6 +1,6 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { Footer, NavBar, SlugBreadcrumb, SlugShareButton } from "@/components";
+import { Footer, ImageModal, NavBar, SlugBreadcrumb, SlugShareButton } from "@/components";
 
 import { client } from "@/sanity/client";
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
@@ -59,8 +59,18 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
   types: {
     image: ({ value }) => {
       const imageUrl = urlFor(value)?.width(1366).auto("format").url();
+      const originalUrl = value?.asset?._ref ? urlFor(value)?.url() ?? null : null;
+
+      // console.log(imageUrl)
+      // console.log(originalUrl)
+
       return imageUrl ? (
-        <Image src={imageUrl} alt="Sanity Image" className="rounded-lg shadow-lg w-full my-2" />
+        <ImageModal
+          src={imageUrl}
+          originalSrc={originalUrl as string}
+          alt="Sanity Image"
+          className="rounded-lg shadow-lg w-full my-2"
+        />
       ) : null;
     },
   },
@@ -98,36 +108,35 @@ export default async function PostPage({
 
   try {
     const post = await client.fetch<SanityDocument>(POST_QUERY, resolvedParams, options);
-    
+
     // ถ้าไม่พบโพสต์ ให้แสดงหน้า Not Found
     if (!post || !post._id) {
       return <PostNotFound />;
     }
 
-    // แก้ไขจาก post.image เป็น post.mainImage เพื่อให้สอดคล้องกับโครงสร้างข้อมูลจาก Sanity
-    const postImageUrl = post?.mainImage?.asset
-      ? urlFor(post.mainImage)?.width(1600).auto("format").url()
-      : null;
+    const mainImageUrl = urlFor(post.mainImage)?.width(1600).auto("format").url();
+    const originalMainImageUrl = post?.mainImage?.asset?.url;
 
-		const fullUrl = `https://thesis.trinpsri.net/${post.slug.current}`;
+    const fullUrl = `https://thesis.trinpsri.net/${post.slug.current}`;
 
     return (
       <div>
         <NavBar />
 
         <section className="container mx-auto max-w-5xl flex-grow px-4 my-5 flex flex-col gap-5 font-[family-name:var(--font-bai-jamjuree)]">
-					
+
           <SlugBreadcrumb
             postTitle={post.title}
             postSlug={post.slug.current}
           />
 
           <div className="prose prose-2xl dark:prose-invert prose-zinc">
-            {postImageUrl ? (
-              <Image
-                src={postImageUrl}
+            {mainImageUrl ? (
+              <ImageModal
+                src={mainImageUrl}
+                originalSrc={originalMainImageUrl}
                 alt={post.title}
-                className="rounded-lg shadow-lg w-full my-1 "
+                className="rounded-lg shadow-lg w-full my-1"
               />
             ) : (
               <div className="aspect-video bg-gray-200 rounded-lg shadow-lg flex items-center justify-center">
@@ -153,7 +162,7 @@ export default async function PostPage({
             />
           </div>
 
-					<div className="w-full border-1 border-primary my-4" />
+          <div className="w-full border-1 border-primary my-4" />
         </section>
 
         <section className="container mx-auto max-w-4xl flex-grow px-4 my-5 flex flex-col gap-5 font-[family-name:var(--font-bai-jamjuree)]">
