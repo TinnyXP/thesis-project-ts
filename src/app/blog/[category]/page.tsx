@@ -38,8 +38,6 @@ export default async function CategoryPage({
       category: params.category
     }, { next: { revalidate: 30 } });
 
-    console.log(category?.title);
-
     if (!category && params.category !== 'uncategorized') {
       return <CategoryNotFound />;
     }

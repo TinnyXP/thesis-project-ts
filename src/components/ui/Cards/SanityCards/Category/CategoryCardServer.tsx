@@ -1,6 +1,5 @@
 import { client } from "@/sanity/client";
 import { CategoryCardClient } from "@/components";
-import { notFound } from "next/navigation";
 import { Link } from "@heroui/react";
 
 export interface Post {
@@ -14,9 +13,6 @@ export interface Post {
     slug: string;
   }>;
 }
-
-// เพิ่ม query เช็ค category
-const CATEGORY_QUERY = `*[_type == "category" && $slug in [slug.current, "uncategorized"]][0]`;
 
 const CATEGORY_POSTS_QUERY = `*[
   _type == "post" && 
@@ -57,7 +53,7 @@ const EmptyCategory = ({ category }: { category: string }) => (
 
 export default async function CategoryCardServer({ category }: { category: string }) {
   try {
-    const posts = await client.fetch<Post[]>(CATEGORY_POSTS_QUERY, { category });
+    const posts = await client.fetch<Post[]>(CATEGORY_POSTS_QUERY, { category }, options);
     
     // ถ้าไม่มีโพสต์ในหมวดหมู่
     if (!posts || posts.length === 0) {
