@@ -9,7 +9,7 @@ import imageUrlBuilder from "@sanity/image-url";
 
 import { PortableTextReactComponents } from "@portabletext/react";
 
-import { Image, Link } from "@heroui/react";
+import { Link } from "@heroui/react";
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
   _id,

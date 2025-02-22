@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Modal,
   ModalContent,
@@ -8,10 +8,7 @@ import {
   Button,
   useDisclosure,
   Image,
-  Spinner,
-  ModalFooter,
 } from "@heroui/react";
-import { Download } from "lucide-react";
 
 interface ImageWithModalProps {
   src: string;
