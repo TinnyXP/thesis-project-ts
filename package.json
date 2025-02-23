@@ -12,8 +12,6 @@
     "@heroui/react": "^2.7.2",
     "@portabletext/react": "^3.2.1",
     "@sanity/image-url": "^1.1.0",
-    "@types/file-saver": "^2.0.7",
-    "file-saver": "^2.0.5",
     "framer-motion": "^12.4.7",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.475.0",
@@ -23,7 +21,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.5.0",
-    "react-share": "^5.0.2"
+    "react-share": "^5.2.1"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",

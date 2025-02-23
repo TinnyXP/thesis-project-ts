@@ -9,7 +9,7 @@ import imageUrlBuilder from "@sanity/image-url";
 
 import { PortableTextReactComponents } from "@portabletext/react";
 
-import { Link } from "@heroui/react";
+import { Link, Image } from "@heroui/react";
 import { FaQuoteLeft } from "react-icons/fa6";
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
@@ -22,6 +22,12 @@ const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
     title,
     "slug": coalesce(slug.current, 'uncategorized')
   },
+  "author": author->{
+    name,
+    image,
+    slug,
+    bio
+  },
   mainImage {
     asset-> {
       _ref,
@@ -29,6 +35,23 @@ const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
     }
   }
 }`;
+// const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
+//   _id,
+//   title,
+//   slug,
+//   publishedAt,
+//   body,
+//   "categories": categories[]->{
+//     title,
+//     "slug": coalesce(slug.current, 'uncategorized')
+//   },
+//   mainImage {
+//     asset-> {
+//       _ref,
+//       url
+//     }
+//   }
+// }`;
 
 const { projectId, dataset } = client.config();
 const urlFor = (source: SanityImageSource) =>
@@ -165,13 +188,36 @@ export default async function PostPage({
             <h1 className="text-3xl md:text-4xl font-bold">{post.title}</h1>
           </div>
           <div className="flex justify-between items-center flex-wrap gap-4">
-            <p className="text-base">
-              📅 เผยแพร่: {new Date(post.publishedAt).toLocaleDateString("th-TH", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-2">
+                <p className="text-base">
+                  📅 เผยแพร่: {new Date(post.publishedAt).toLocaleDateString("th-TH", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+                {post.author && (
+                  <div className="flex items-center gap-2">
+                    {post.author.image && (
+                      <Image
+                        src={urlFor(post.author.image)?.width(80).auto("format").url()}
+                        alt={post.author.name}
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                      />
+                    )}
+                    <p className="text-base">
+                      ✍️ เขียนโดย:{" "}
+                      <span className="font-medium">
+                        {post.author.name}
+                      </span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
             <SlugShareButton
               url={fullUrl}
               title={post.title}
