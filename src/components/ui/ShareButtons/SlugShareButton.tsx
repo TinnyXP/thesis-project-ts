@@ -12,7 +12,9 @@ interface ShareButtonsProps {
 }
 
 export default function SlugShareButton({ url, title }: ShareButtonsProps) {
-  const link = url;
+  const currentUrl = typeof window !== 'undefined' 
+    ? window.location.href  // ใช้ URL ปัจจุบันจาก client side
+    : url;
 
   const isMobile = () => {
     if (typeof window === "undefined") return false;
@@ -23,10 +25,10 @@ export default function SlugShareButton({ url, title }: ShareButtonsProps) {
   const handleCopy = async () => {
     try {
       if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(link);
+        await navigator.clipboard.writeText(currentUrl);
       } else {
         const textArea = document.createElement("textarea");
-        textArea.value = link;
+        textArea.value = currentUrl;
         textArea.style.position = "fixed";
         textArea.style.opacity = "0";
         document.body.appendChild(textArea);
@@ -46,24 +48,23 @@ export default function SlugShareButton({ url, title }: ShareButtonsProps) {
   };
 
   const handleShare = (platform: string) => {
-    const encodedUrl = encodeURIComponent(url);
+    const encodedUrl = encodeURIComponent(currentUrl);
     const encodedTitle = encodeURIComponent(title);
     let shareUrl = '';
 
     switch (platform) {
       case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        // Facebook ใช้ quote สำหรับข้อความ
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`;
         break;
       case 'twitter':
+        // Twitter ใช้ text สำหรับข้อความ
         shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
         break;
       case 'line':
-        shareUrl = `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`;
+        // Line สามารถใช้ทั้ง url และ text
+        shareUrl = `https://social-plugins.line.me/lineit/share?url=${encodedUrl}&text=${encodedTitle}`;
         break;
-    }
-
-    if (shareUrl) {
-      window.open(shareUrl, '_blank', 'width=600,height=400');
     }
   };
 

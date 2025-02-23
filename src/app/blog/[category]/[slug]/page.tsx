@@ -12,6 +12,8 @@ import { PortableTextReactComponents } from "@portabletext/react";
 import { Link, Image } from "@heroui/react";
 import { FaQuoteLeft } from "react-icons/fa6";
 
+import { headers } from 'next/headers';
+
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
   _id,
   title,
@@ -120,6 +122,10 @@ export default async function PostPage({
 }: {
   params: Promise<{ category: string; slug: string }>;
 }) {
+  const headersList = headers();
+  const domain = headersList.get('host') || '';
+  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+
   // ตรวจสอบว่า params.slug มีค่าหรือไม่
   const resolvedParams = await params;
   if (!resolvedParams.slug) {
@@ -138,9 +144,7 @@ export default async function PostPage({
     const originalMainImageUrl = post.mainImage?.asset?.url || null;
 
     const categorySlug = post.categories?.[0]?.slug || 'uncategorized';
-    const fullUrl = typeof window !== 'undefined'
-      ? `${window.location.origin}/blog/${categorySlug}/${post.slug.current}`
-      : '';
+    const fullUrl = `${protocol}://${domain}/blog/${categorySlug}/${post.slug.current}`;
 
     console.log (fullUrl)
 
