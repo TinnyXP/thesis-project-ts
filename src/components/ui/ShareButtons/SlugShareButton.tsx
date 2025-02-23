@@ -12,7 +12,7 @@ interface ShareButtonsProps {
 }
 
 export default function SlugShareButton({ url, title }: ShareButtonsProps) {
-  const currentUrl = typeof window !== 'undefined' 
+  const currentUrl = typeof window !== 'undefined'
     ? window.location.href  // ใช้ URL ปัจจุบันจาก client side
     : url;
 
@@ -48,23 +48,28 @@ export default function SlugShareButton({ url, title }: ShareButtonsProps) {
   };
 
   const handleShare = (platform: string) => {
+    // ใช้ window.location.href เพื่อให้ได้ URL เต็มรูปแบบ
+    const currentUrl = window.location.href;
     const encodedUrl = encodeURIComponent(currentUrl);
     const encodedTitle = encodeURIComponent(title);
     let shareUrl = '';
 
     switch (platform) {
       case 'facebook':
-        // Facebook ใช้ quote สำหรับข้อความ
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`;
+        // Facebook ต้องการ URL แบบเต็มรูปแบบ
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
         break;
       case 'twitter':
-        // Twitter ใช้ text สำหรับข้อความ
         shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
         break;
       case 'line':
-        // Line สามารถใช้ทั้ง url และ text
         shareUrl = `https://social-plugins.line.me/lineit/share?url=${encodedUrl}&text=${encodedTitle}`;
         break;
+    }
+
+    if (shareUrl) {
+      // เพิ่มขนาด popup ให้ใหญ่ขึ้น
+      window.open(shareUrl, '_blank', 'width=500,height=00');
     }
   };
 
