@@ -1,14 +1,6 @@
 'use client';
 
 import React from 'react';
-
-import {
-  LineShareButton,
-  FacebookShareButton,
-  TwitterShareButton,
-} from "react-share";
-
-
 import { Button, Tooltip, addToast } from "@heroui/react";
 import { FiCopy, FiShare2 } from 'react-icons/fi';
 import { SiLine } from 'react-icons/si';
@@ -19,8 +11,8 @@ interface ShareButtonsProps {
   title: string;
 }
 
-export default function SlugShareButton({ url }: ShareButtonsProps) {
-  const link = typeof window !== "undefined" ? window.location.href : "";
+export default function SlugShareButton({ url, title }: ShareButtonsProps) {
+  const link = url;
 
   const isMobile = () => {
     if (typeof window === "undefined") return false;
@@ -30,20 +22,16 @@ export default function SlugShareButton({ url }: ShareButtonsProps) {
 
   const handleCopy = async () => {
     try {
-      // ตรวจสอบว่าใช้ navigator.clipboard ได้หรือไม่ (สำหรับ PC และมือถือบางรุ่น)
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(link);
       } else {
-        // Fallback สำหรับมือถือรุ่นเก่าหรือบริบทที่ไม่รองรับ clipboard API
         const textArea = document.createElement("textarea");
         textArea.value = link;
-        // ทำให้มองไม่เห็น
         textArea.style.position = "fixed";
         textArea.style.opacity = "0";
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-
         try {
           document.execCommand('copy');
         } catch (err) {
@@ -54,6 +42,28 @@ export default function SlugShareButton({ url }: ShareButtonsProps) {
       }
     } catch (err) {
       console.error("Failed to copy:", err);
+    }
+  };
+
+  const handleShare = (platform: string) => {
+    const encodedUrl = encodeURIComponent(url);
+    const encodedTitle = encodeURIComponent(title);
+    let shareUrl = '';
+
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+        break;
+      case 'line':
+        shareUrl = `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`;
+        break;
+    }
+
+    if (shareUrl) {
+      window.open(shareUrl, '_blank', 'width=600,height=400');
     }
   };
 
@@ -68,7 +78,6 @@ export default function SlugShareButton({ url }: ShareButtonsProps) {
           <Button
             onPress={() => {
               handleCopy();
-              // ใช้ addToast เฉพาะเมื่อเป็นมือถือ
               if (!isMobile()) {
                 addToast({
                   title: "คัดลอกลิงก์ไปยังคลิปบอร์ดเรียบร้อย !",
@@ -95,33 +104,36 @@ export default function SlugShareButton({ url }: ShareButtonsProps) {
         </Tooltip>
 
         <Tooltip content='Facebook' className='bg-blue-500 text-white' offset={3} placement='bottom'>
-          <FacebookShareButton url={url}>
-            <div className="w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-500/90 
+          <button
+            onClick={() => handleShare('facebook')}
+            className="w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-500/90 
                     flex items-center justify-center transition-all duration-200 
-                    shadow hover:shadow-lgcl border-2 border-blue-400 dark:border-blue-600">
-              <FaFacebook size={16} className="text-white" />
-            </div>
-          </FacebookShareButton>
+                    shadow hover:shadow-lgcl border-2 border-blue-400 dark:border-blue-600"
+          >
+            <FaFacebook size={16} className="text-white" />
+          </button>
         </Tooltip>
 
         <Tooltip content='Twitter (X)' className='bg-zinc-800 text-white' offset={3} placement='bottom'>
-          <TwitterShareButton url={url}>
-            <div className="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-800/90 
+          <button
+            onClick={() => handleShare('twitter')}
+            className="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-800/90 
                     flex items-center justify-center transition-all duration-200 
-                    shadow hover:shadow-lg border-2 border-zinc-700">
-              <FaXTwitter size={18} className="text-white" />
-            </div>
-          </TwitterShareButton>
+                    shadow hover:shadow-lg border-2 border-zinc-700"
+          >
+            <FaXTwitter size={18} className="text-white" />
+          </button>
         </Tooltip>
 
         <Tooltip content='Line' className='bg-emerald-500 text-white' offset={3} placement='bottom'>
-          <LineShareButton url={url}>
-            <div className="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-500/90 
+          <button
+            onClick={() => handleShare('line')}
+            className="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-500/90 
                     flex items-center justify-center transition-all duration-200 
-                    shadow hover:shadow-lg border-2 border-emerald-400 dark:border-emerald-600">
-              <SiLine size={18} className="text-white" />
-            </div>
-          </LineShareButton>
+                    shadow hover:shadow-lg border-2 border-emerald-400 dark:border-emerald-600"
+          >
+            <SiLine size={18} className="text-white" />
+          </button>
         </Tooltip>
       </div>
     </div>

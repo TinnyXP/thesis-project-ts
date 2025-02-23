@@ -35,7 +35,11 @@ const CATEGORY_POSTS_QUERY = `*[
   }
 }`;
 
-const options = { next: { revalidate: 30 } };
+const options = { 
+  next: { 
+    revalidate: 1,
+  } 
+};
 
 const EmptyCategory = ({ category }: { category: string }) => (
   <div className="container mx-auto max-w-5xl flex-grow px-4 my-10 flex flex-col items-center justify-center gap-6 min-h-[40vh]">
@@ -55,7 +59,6 @@ export default async function CategoryCardServer({ category }: { category: strin
   try {
     const posts = await client.fetch<Post[]>(CATEGORY_POSTS_QUERY, { category }, options);
     
-    // ถ้าไม่มีโพสต์ในหมวดหมู่
     if (!posts || posts.length === 0) {
       return <EmptyCategory category={category} />;
     }

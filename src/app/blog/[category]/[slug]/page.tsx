@@ -35,23 +35,6 @@ const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
     }
   }
 }`;
-// const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
-//   _id,
-//   title,
-//   slug,
-//   publishedAt,
-//   body,
-//   "categories": categories[]->{
-//     title,
-//     "slug": coalesce(slug.current, 'uncategorized')
-//   },
-//   mainImage {
-//     asset-> {
-//       _ref,
-//       url
-//     }
-//   }
-// }`;
 
 const { projectId, dataset } = client.config();
 const urlFor = (source: SanityImageSource) =>
@@ -59,7 +42,7 @@ const urlFor = (source: SanityImageSource) =>
     ? imageUrlBuilder({ projectId, dataset }).image(source)
     : null;
 
-const options = { next: { revalidate: 30 } };
+const options = { next: { revalidate: 1 } };
 
 const portableTextComponents: Partial<PortableTextReactComponents> = {
   block: {
@@ -155,7 +138,11 @@ export default async function PostPage({
     const originalMainImageUrl = post.mainImage?.asset?.url || null;
 
     const categorySlug = post.categories?.[0]?.slug || 'uncategorized';
-    const fullUrl = `https://thesis.trinpsri.net/${categorySlug}/${post.slug.current}`;
+    const fullUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}/blog/${categorySlug}/${post.slug.current}`
+      : '';
+
+    console.log (fullUrl)
 
     return (
       <div>

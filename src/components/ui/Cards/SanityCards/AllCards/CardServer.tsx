@@ -35,20 +35,23 @@ const POSTS_QUERY = `*[
   }
 }`;
 
-const options = { next: { revalidate: 30 } };
+const options = { 
+  next: { 
+    revalidate: 1,
+  } 
+};
 
 export default async function NewsCardServer() {
   try {
     const posts = await client.fetch<Post[]>(POSTS_QUERY, {}, options);
     
-    // ถ้าไม่มี posts ให้ return null หรือ placeholder component
     if (!posts || posts.length === 0) {
-      return null; // หรือ return <EmptyState /> ถ้ามี
+      return null;
     }
 
     return <CardClient posts={posts} />;
   } catch (error) {
     console.error('Error fetching posts:', error);
-    return null; // หรือ return <ErrorState /> ถ้ามี
+    return null;
   }
 }
