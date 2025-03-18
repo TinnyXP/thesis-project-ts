@@ -6,6 +6,8 @@ import { Footer, NavBar } from "@/components"
 import { Button } from "@heroui/react"
 
 import { FiDownload } from "react-icons/fi"
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from '@/app/translation/languageSelector';
 
 export default function Page() {
   return (
@@ -21,29 +23,30 @@ export default function Page() {
 }
 
 const DownlaodHeader = () => {
-
+  const { t } = useTranslation();
   return (
     <div className="border-2 p-4 border-primary-color rounded-lg">
       <div className="text-center">
-        <h1 className="text-2xl md:text-3xl font-bold text-primary-color dark:text-white">Download Center</h1>
-        <p className="text-default-500 dark:gray-500/80 text-xs md:text-sm mt-1">Download all the files you need here</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-primary-color dark:text-white">{t('loadcenter')}</h1>
+        <p className="text-default-500 dark:gray-500/80 text-xs md:text-sm mt-1">{t('loaddes')}</p>
       </div>
     </div>
   );
 };
 
 const DownlaodList = () => {
+  const { t } = useTranslation();
 
   const groupedFiles = [
     {
-      title: "หัวข้อไฟล์ที่ 1",
+      title: t('topic1'),
       files: [
         { name: "แผนที่โครงการวิจัย", description: "File : project-map.pdfproject-map.pdfproject-map.pdfproject-map.pdfproject-map.pdfproject-map.pdfproject-map.pdfproject-map.pdf", size: "3 MB", date: "2025-01-02", url: "#" },
         { name: "สรุปรายงานการประชุม", description: "File : meeting-summary.docx", size: "2 MB", date: "2025-01-01", url: "#" },
       ]
     },
     {
-      title: "หัวข้อไฟล์ที่ 2",
+      title: t('topic2'),
       files: [
         { name: "ภาพรวมของโครงการ", description: "File : overview.pptx", size: "10 MB", date: "2025-01-03", url: "#" },
         { name: "ตัวอย่างการออกแบบ", description: "File : design-sample.zip", size: "50 MB", date: "2025-01-04", url: "#" },
@@ -51,7 +54,7 @@ const DownlaodList = () => {
       ]
     },
     {
-      title: "หัวข้อไฟล์ที่ 3",
+      title: t('topic3'),
       files: [
         { name: "ข้อมูลเบื้องต้นเกี่ยวกับระบบ", description: "File : system-info.pdf", size: "8 MB", date: "2025-01-05", url: "#" },
         { name: "คู่มือการติดตั้ง", description: "File : installation-guide.docx", size: "5 MB", date: "2025-01-06", url: "#" },
@@ -101,7 +104,7 @@ const DownlaodList = () => {
                         startContent={<FiDownload />}
                         href={file.url}
                       >
-                        Download
+                        {t('download')}
                       </Button>
                     </div>
                   </div>

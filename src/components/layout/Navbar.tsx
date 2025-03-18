@@ -14,6 +14,11 @@ import { Avatar, AvatarIcon } from "@heroui/avatar";
 
 import { FiArrowUpRight, FiCodesandbox, FiLogIn, FiLogOut } from "react-icons/fi";
 
+import { Key } from 'react';
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from '@/app/translation/languageSelector';
+import i18n from '@/app/i18n'; // Import the i18n configuration
+
 interface ProfileAvatarProps {
   size?: "md" | "sm" | "lg";
 }
@@ -30,25 +35,25 @@ export default function Component() {
     // จำลองการเปลี่ยนสถานะ
     setIsLoggedIn(!isLoggedIn);
   };
-
+  const { t } = useTranslation();
   const menuItems = [
     {
-      label: "ประวัติความเป็นมา",
+      label: t('history'),
       href: "/test/download"
       // href: "/history"
     },
     {
-      label: "สถานที่ท่องเที่ยว",
+      label: t('place'),
       href: "/test/download"
       // href: "/attractions"
     },
     {
-      label: "ข่าวสาร",
+      label: t('news'),
       href: "/test/download"
       // href: "#"
     },
     {
-      label: "สถิติ",
+      label: t('static'),
       href: "/test/download"
       // href: "/statistics"
     },
@@ -105,7 +110,7 @@ export default function Component() {
               href="/auth/login"
               size="md"
             >
-              เข้าสู่ระบบ
+              {t('login')}
             </Button>
           )}
         </NavbarItem>
@@ -114,7 +119,8 @@ export default function Component() {
           <ToggleTheme className="border-1.5 border-default-200 dark:border-default-200" />
         </NavbarItem>
         <NavbarItem>
-          <LanguagesButton />
+          {/* <LanguagesButton /> */}
+          <LanguageSelector />
         </NavbarItem>
       </NavbarContent>
 
