@@ -19,6 +19,8 @@ import { useTranslation } from 'react-i18next';
 import LanguageSelector from '@/app/translation/languageSelector';
 import i18n from '@/app/i18n'; // Import the i18n configuration
 
+import { signOut, useSession } from 'next-auth/react'
+
 interface ProfileAvatarProps {
   size?: "md" | "sm" | "lg";
 }
@@ -195,6 +197,8 @@ export default function Component() {
 
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ size = "sm" }) => {
 
+  const { data: session } = useSession()
+
   return (
     <div>
       <Dropdown>
@@ -206,7 +210,8 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ size = "sm" }) => {
               icon: "text-zinc-400 dark:text-zinc-400",
             }}
             size={size}
-            src="https://images.unsplash.com/broken"
+            // src="https://images.unsplash.com/broken"
+            src={session?.user?.image ?? "https://images.unsplash.com/broken"} // Use user's picture if available
             icon={<AvatarIcon />}
             showFallback
           />
@@ -220,9 +225,10 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ size = "sm" }) => {
               <p className="font-regular text-default-500">
                 ลงชื่อด้วย
               </p>
-              <p className="font-semibold">
+              {/* <p className="font-semibold">
                 thetinny.xp@zzz.com
-              </p>
+              </p> */}
+               <p className="font-semibold">{session?.user?.name ?? "Guest"}</p> {/* Show email or default text */}
             </DropdownItem>
           </DropdownSection>
           <DropdownItem
@@ -234,6 +240,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ size = "sm" }) => {
             key="logout"
             color="danger"
             startContent={<FiLogOut />}
+            onClick={() => signOut()} // Logout when clicked
           >
             ออกจากระบบ
           </DropdownItem>
