@@ -1,60 +1,71 @@
-// app/blog/[category]/page.tsx
 import React from "react";
-import { Footer, NavBar, CategoryCardServer } from "@/components";
-import { client } from "@/lib/sanity/client";
+import { CategoryCardServer } from "@/components";
+import { getCategoryBySlug } from "@/lib/sanity";
 import { Link } from "@heroui/react";
+import { notFound } from "next/navigation";
+import { Metadata, ResolvingMetadata } from "next";
 
+// กำหนด metadata แบบ dynamic จากข้อมูลหมวดหมู่
+export async function generateMetadata(
+  { params }: { params: { category: string } },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // ดึงข้อมูลหมวดหมู่
+  const category = await getCategoryBySlug(params.category);
+  const categoryTitle = category?.title || "ไม่มีหมวดหมู่";
+
+  return {
+    title: `Bangkrajao - บทความในหมวดหมู่ ${categoryTitle}`,
+    description: category?.description || `รวมบทความทั้งหมดในหมวดหมู่ ${categoryTitle}`,
+  };
+}
+
+// Component แสดงข้อความเมื่อไม่พบหมวดหมู่
 const CategoryNotFound = () => (
-  <div>
-    <NavBar />
-    <section className="container mx-auto max-w-5xl flex-grow px-4 my-10 flex flex-col items-center justify-center gap-6 min-h-[50vh] font-[family-name:var(--font-bai-jamjuree)]">
-      <div className="text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">ไม่พบหมวดหมู่</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-          ขออภัย ไม่พบหมวดหมู่ที่คุณกำลังมองหา
-        </p>
-        <Link href="/blog" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
-          กลับไปยังหน้าบทความ
-        </Link>
-      </div>
-    </section>
-    <Footer />
+  <div className="container mx-auto max-w-5xl flex-grow px-4 my-10 flex flex-col items-center justify-center gap-6 min-h-[50vh] font-[family-name:var(--font-bai-jamjuree)]">
+    <div className="text-center">
+      <h1 className="text-4xl md:text-5xl font-bold mb-4">ไม่พบหมวดหมู่</h1>
+      <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+        ขออภัย ไม่พบหมวดหมู่ที่คุณกำลังมองหา
+      </p>
+      <Link href="/blog" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+        กลับไปยังหน้าบทความ
+      </Link>
+    </div>
   </div>
 );
 
-const CATEGORY_QUERY = `*[_type == "category" && slug.current == $category][0]`;
-
+/**
+ * หน้าแสดงบทความตามหมวดหมู่
+ */
 export default async function CategoryPage({
   params,
 }: {
   params: { category: string };
 }) {
+  // ตรวจสอบว่ามีพารามิเตอร์หมวดหมู่หรือไม่
   if (!params.category) {
-    return <CategoryNotFound />;
+    notFound();
   }
 
   try {
-    const category = await client.fetch(CATEGORY_QUERY, {
-      category: params.category
-    }, { next: { revalidate: 30 } });
+    // ดึงข้อมูลหมวดหมู่
+    const category = await getCategoryBySlug(params.category, {
+      next: { revalidate: 60 }
+    });
 
+    // ถ้าไม่พบหมวดหมู่และไม่ใช่ "uncategorized"
     if (!category && params.category !== 'uncategorized') {
       return <CategoryNotFound />;
     }
 
     return (
-      <div className="font-[family-name:var(--font-line-seed-sans)]">
-        <NavBar />
-
-        <section className="flex flex-col items-center gap-14 mt-5 mb-7">
-          <h1 className="text-3xl font-bold">
-            บทความในหมวดหมู่ {category?.title || 'Uncategorized'}
-          </h1>
-          <CategoryCardServer category={params.category} />
-        </section>
-
-        <Footer />
-      </div>
+      <section className="flex flex-col items-center gap-14 mt-5 mb-7">
+        <h1 className="text-3xl font-bold">
+          บทความในหมวดหมู่ {category?.title || 'ไม่มีหมวดหมู่'}
+        </h1>
+        <CategoryCardServer category={params.category} />
+      </section>
     );
   } catch (error) {
     console.error('Error fetching category:', error);

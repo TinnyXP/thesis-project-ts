@@ -11,15 +11,18 @@ import {
   Tooltip,
   Spinner
 } from "@heroui/react";
-import { MdOutlineClose, MdOutlineFileDownload } from 'react-icons/md';
+import { X, Download } from 'lucide-react';
 
 interface ImageWithModalProps {
   src: string;
-  originalSrc?: string;
+  originalSrc?: string | null; // แก้ไขให้รับค่า null ได้
   alt: string;
   className?: string;
 }
 
+/**
+ * คอมโพเนนต์รูปภาพที่มีโมดัลแสดงรูปภาพขนาดใหญ่และดาวน์โหลดได้
+ */
 const ImageWithModal: React.FC<ImageWithModalProps> = ({
   src,
   originalSrc,
@@ -30,7 +33,9 @@ const ImageWithModal: React.FC<ImageWithModalProps> = ({
   const [isDownloading, setIsDownloading] = useState(false);
   const modalSrc = originalSrc || src;
 
-  // สร้างชื่อไฟล์ที่ปลอดภัย
+  /**
+   * สร้างชื่อไฟล์ที่ปลอดภัยสำหรับการดาวน์โหลด
+   */
   const createSafeFileName = (name: string): string => {
     const cleanName = name
       .replace(/[^a-zA-Z0-9ก-๙]/g, '_')  // แทนที่อักขระพิเศษด้วย _
@@ -40,6 +45,9 @@ const ImageWithModal: React.FC<ImageWithModalProps> = ({
     return cleanName ? `${cleanName}_${Date.now()}.jpg` : `image_${Date.now()}.jpg`;
   };
 
+  /**
+   * ฟังก์ชันสำหรับดาวน์โหลดรูปภาพ
+   */
   const handleDownload = async () => {
     if (!originalSrc) {
       alert('ไม่พบลิงก์สำหรับดาวน์โหลดรูปภาพ');
@@ -56,8 +64,8 @@ const ImageWithModal: React.FC<ImageWithModalProps> = ({
       const response = await fetch(`/api/download?url=${encodedUrl}&filename=${encodeURIComponent(fileName)}`);
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'เกิดข้อผิดพลาดในการดาวน์โหลด');
       }
 
       // ดาวน์โหลดไฟล์
@@ -88,6 +96,7 @@ const ImageWithModal: React.FC<ImageWithModalProps> = ({
         alt={alt}
         className={`cursor-pointer ${className}`}
         onClick={onOpen}
+        loading="lazy"
       />
 
       <Modal
@@ -110,6 +119,7 @@ const ImageWithModal: React.FC<ImageWithModalProps> = ({
                     src={modalSrc}
                     alt={alt}
                     className="w-full h-auto"
+                    loading="eager"
                   />
                   <div className="absolute top-2 right-2 flex gap-2 z-10">
                     {originalSrc && (
@@ -127,8 +137,9 @@ const ImageWithModal: React.FC<ImageWithModalProps> = ({
                           onPress={handleDownload}
                           disabled={isDownloading}
                           className="bg-zinc-500/50 backdrop-blur-sm hover:bg-zinc-500/70 text-white"
+                          aria-label="ดาวน์โหลดรูปภาพ"
                         >
-                          {isDownloading ? <Spinner size="sm" /> : <MdOutlineFileDownload size={22} />}
+                          {isDownloading ? <Spinner size="sm" /> : <Download size={22} />}
                         </Button>
                       </Tooltip>
                     )}
@@ -138,8 +149,9 @@ const ImageWithModal: React.FC<ImageWithModalProps> = ({
                       color="danger"
                       onPress={onClose}
                       className="bg-zinc-500/50 backdrop-blur-sm hover:bg-zinc-500/70 text-white"
+                      aria-label="ปิดโมดัล"
                     >
-                      <MdOutlineClose size={22} />
+                      <X size={22} />
                     </Button>
                   </div>
                 </div>

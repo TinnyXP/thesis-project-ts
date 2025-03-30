@@ -1,13 +1,7 @@
-// src/app/blog/[category]/[slug]/page.tsx
 import React from "react";
 import { notFound } from "next/navigation";
 import { ImageModal, SlugBreadcrumb, SlugShareButton } from "@/components";
-import { 
-  getPostBySlug, 
-  urlFor, 
-  portableTextComponents, 
-  formatThaiDate
-} from "@/lib/sanity";
+import { getPostBySlug, urlFor, portableTextComponents, formatThaiDate } from "@/lib/sanity";
 
 import { Image, Link } from "@heroui/react";
 import { PortableText } from "next-sanity";
@@ -122,7 +116,7 @@ export default async function PostPage({
             {mainImageUrl ? (
               <ImageModal
                 src={mainImageUrl}
-                originalSrc={originalMainImageUrl || undefined}
+                originalSrc={originalMainImageUrl}
                 alt={post.title}
                 className="rounded-lg shadow-lg w-full my-1"
               />
