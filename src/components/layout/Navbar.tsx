@@ -10,7 +10,7 @@ import { Avatar, AvatarIcon } from "@heroui/avatar";
 import { FiArrowUpRight, FiCodesandbox, FiLogIn, FiLogOut } from "react-icons/fi";
 import { Key } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector, useLanguage } from '@/lib/i18n'; // แก้ไขการ import
+import { LanguageSelectorButton, LanguageSelectorTab } from '@/lib/i18n';
 import { signOut, useSession } from 'next-auth/react'
 
 interface ProfileAvatarProps {
@@ -106,7 +106,7 @@ export default function Component() {
           <ToggleTheme className="border-1.5 border-default-200 dark:border-default-200" />
         </NavbarItem>
         <NavbarItem>
-          <LanguageSelector /> {/* ใช้คอมโพเนนต์ใหม่ */}
+          <LanguageSelectorButton /> {/* ใช้คอมโพเนนต์ใหม่ */}
         </NavbarItem>
       </NavbarContent>
 
@@ -126,7 +126,7 @@ export default function Component() {
               href="/auth/login"
               size="md"
             >
-              <p className="font-[family-name:var(--font-line-seed-sans)]">เข้าสู่ระบบ</p>
+              {t('login')}
             </Button>
           )}
         </NavbarItem>
@@ -156,7 +156,7 @@ export default function Component() {
           <Divider orientation="vertical" />
 
           <div>
-            <LanguagesTab />
+            <LanguageSelectorTab />
           </div>
 
           <Divider orientation="vertical" />
@@ -227,42 +227,5 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ size = "sm" }) => {
         </DropdownMenu>
       </Dropdown>
     </div>
-  )
-}
-
-// LanguagesTab คอมโพเนนต์ที่ใช้ i18n
-const LanguagesTab = () => {
-  const { t } = useTranslation();
-  const { changeLanguage } = useLanguage();
-
-  const handleTabChange = (key: Key) => {
-    switch (key) {
-      case "thai":
-        changeLanguage("th");
-        break;
-      case "english":
-        changeLanguage("en");
-        break;
-      case "chinese":
-        changeLanguage("zh");
-        break;
-    }
-  };
-
-  return (
-    <Tabs 
-      aria-label="Language Tabs" 
-      color="primary" 
-      variant="underlined"
-      placement="start"
-      classNames={{
-        tabContent: "font-[family-name:var(--font-line-seed-sans)] text-md group-data-[selected=true]:text-[#06b6d4]",
-      }}
-      onSelectionChange={handleTabChange}
-    >
-      <Tab key="thai" title="ไทย" />
-      <Tab key="english" title="English" />
-      <Tab key="chinese" title="中文" />
-    </Tabs>
   )
 }

@@ -5,7 +5,6 @@ import { Footer, NavBar } from "@/components"
 import { Button } from "@heroui/react"
 import { FiDownload } from "react-icons/fi"
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector } from '@/lib/i18n'; // แก้ไขการ import
 
 export default function Page() {
   return (

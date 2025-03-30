@@ -1,84 +1,76 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
+import { Button } from "@heroui/react";
 import { useLanguage } from '../hooks/useLanguage';
-
-interface LanguageSelectorProps {
-  variant?: 'dropdown' | 'buttons';
-  className?: string;
-}
+import { Key } from 'react';
 
 /**
- * LanguageSelector component
- * 
- * Provides a UI for selecting the application language
- * Can be displayed as a dropdown or as buttons based on variant prop
+ * คอมโพเนนต์ปุ่มเลือกภาษาแบบดรอปดาวน์
  */
-export default function LanguageSelectorButton({ 
-  variant = 'dropdown',
-  className = '' 
-}: LanguageSelectorProps) {
+export default function LanguageSelectorButton() {
   const { t } = useTranslation();
   const { currentLanguage, languages, changeLanguage } = useLanguage();
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("TH");
 
-  // Get current language code
-  const currentLangCode = currentLanguage.code;
+  // ตัวเลือกภาษา
+  const languageOptions = [
+    { key: "th", display: "TH", name: "ไทย" },
+    { key: "en", display: "EN", name: "English" },
+    { key: "zh", display: "CN", name: "中文" },
+  ];
 
-  // Handle language change
-  const handleLanguageChange = (code: string) => {
-    changeLanguage(code);
-    setShowDropdown(false);
+  // ตั้งค่าการแสดงผลภาษาเริ่มต้นตามภาษาปัจจุบัน
+  useEffect(() => {
+    const langOption = languageOptions.find(lang => lang.key === currentLanguage.code);
+    if (langOption) {
+      setSelectedLanguage(langOption.display);
+    }
+  }, [currentLanguage.code]);
+
+  // จัดการการเปลี่ยนภาษา
+  const handleLanguageChange = (key: Key) => {
+    const langKey = key.toString();
+    changeLanguage(langKey);
+    const langOption = languageOptions.find(lang => lang.key === langKey);
+    if (langOption) {
+      setSelectedLanguage(langOption.display);
+    }
   };
 
-  // Button variant (horizontal list of language options)
-  if (variant === 'buttons') {
-    return (
-      <div className={`flex space-x-2 ${className}`}>
-        {languages.map((language) => (
-          <button
-            key={language.code}
-            className={`px-3 py-1 rounded ${
-              currentLangCode === language.code
-                ? 'bg-primary-color text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-            }`}
-            onClick={() => handleLanguageChange(language.code)}
-          >
-            {language.name}
-          </button>
-        ))}
-      </div>
-    );
-  }
-
-  // Default dropdown variant
   return (
-    <div className={`relative ${className}`}>
-      <div 
-        className="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-800 flex items-center cursor-pointer shadow-sm"
-        onClick={() => setShowDropdown(!showDropdown)}
+    <Dropdown
+      classNames={{
+        content: "min-w-[90px] p-1 font-[family-name:var(--font-line-seed-sans)]",
+      }}
+    >
+      <DropdownTrigger>
+        <Button
+          radius="full"
+          size="md"
+          isIconOnly
+          className="bg-transparent border-1.5 border-default-200 dark:border-default-200 text-zinc-400 dark:text-zinc-400 font-bold"
+        >
+          {selectedLanguage}
+        </Button>
+      </DropdownTrigger>
+      <DropdownMenu
+        aria-label="เลือกภาษา"
+        color="primary"
+        onAction={handleLanguageChange}
+        classNames={{
+          base: "w-[80px]",
+        }}
+        itemClasses={{
+          base: "text-center"
+        }}
       >
-        <span className="mr-2">{t('language')}: {currentLanguage.name}</span>
-        <span className="text-gray-500">▼</span>
-      </div>
-      
-      {showDropdown && (
-        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg z-10">
-          {languages.map((language) => (
-            <div
-              key={language.code}
-              className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${
-                currentLangCode === language.code ? 'bg-gray-100 dark:bg-gray-700 font-medium' : ''
-              }`}
-              onClick={() => handleLanguageChange(language.code)}
-            >
-              {language.name}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+        {languageOptions.map((lang) => (
+          <DropdownItem key={lang.key}>{lang.name}</DropdownItem>
+        ))}
+      </DropdownMenu>
+    </Dropdown>
   );
 }
