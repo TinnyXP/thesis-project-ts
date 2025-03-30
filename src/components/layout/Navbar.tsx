@@ -1,24 +1,16 @@
 "use client";
 
 import Image from "next/image";
-
 import { useTheme } from "next-themes";
-
 import React from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, Link, Button, Divider, Tabs, Tab } from "@heroui/react";
-
 import { ToggleTheme } from "@/components"
-
 import { Dropdown, DropdownMenu, DropdownItem, DropdownTrigger, DropdownSection } from "@heroui/dropdown";
 import { Avatar, AvatarIcon } from "@heroui/avatar";
-
 import { FiArrowUpRight, FiCodesandbox, FiLogIn, FiLogOut } from "react-icons/fi";
-
 import { Key } from 'react';
 import { useTranslation } from 'react-i18next';
-import LanguageSelector from '@/app/translation/languageSelector';
-import i18n from '@/app/i18n'; // Import the i18n configuration
-
+import { LanguageSelector, useLanguage } from '@/lib/i18n'; // แก้ไขการ import
 import { signOut, useSession } from 'next-auth/react'
 
 interface ProfileAvatarProps {
@@ -26,38 +18,31 @@ interface ProfileAvatarProps {
 }
 
 export default function Component() {
-
-  const { theme } = useTheme(); // ดึงค่าธีมปัจจุบัน (light หรือ dark)
-
+  const { theme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false); // สถานะสำหรับการล็อกอิน
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
   const handleLoginToggle = () => {
-    // จำลองการเปลี่ยนสถานะ
     setIsLoggedIn(!isLoggedIn);
   };
+  
   const { t } = useTranslation();
   const menuItems = [
     {
       label: t('history'),
       href: "/test/download"
-      // href: "/history"
     },
     {
       label: t('place'),
       href: "/test/download"
-      // href: "/attractions"
     },
     {
       label: t('news'),
       href: "/test/download"
-      // href: "#"
     },
     {
       label: t('static'),
       href: "/test/download"
-      // href: "/statistics"
     },
   ];
 
@@ -121,8 +106,7 @@ export default function Component() {
           <ToggleTheme className="border-1.5 border-default-200 dark:border-default-200" />
         </NavbarItem>
         <NavbarItem>
-          {/* <LanguagesButton /> */}
-          <LanguageSelector />
+          <LanguageSelector /> {/* ใช้คอมโพเนนต์ใหม่ */}
         </NavbarItem>
       </NavbarContent>
 
@@ -210,8 +194,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ size = "sm" }) => {
               icon: "text-zinc-400 dark:text-zinc-400",
             }}
             size={size}
-            // src="https://images.unsplash.com/broken"
-            src={session?.user?.image ?? "https://images.unsplash.com/broken"} // Use user's picture if available
+            src={session?.user?.image ?? "https://images.unsplash.com/broken"}
             icon={<AvatarIcon />}
             showFallback
           />
@@ -225,10 +208,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ size = "sm" }) => {
               <p className="font-regular text-default-500">
                 ลงชื่อด้วย
               </p>
-              {/* <p className="font-semibold">
-                thetinny.xp@zzz.com
-              </p> */}
-               <p className="font-semibold">{session?.user?.name ?? "Guest"}</p> {/* Show email or default text */}
+              <p className="font-semibold">{session?.user?.name ?? "Guest"}</p>
             </DropdownItem>
           </DropdownSection>
           <DropdownItem
@@ -240,7 +220,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ size = "sm" }) => {
             key="logout"
             color="danger"
             startContent={<FiLogOut />}
-            onClick={() => signOut()} // Logout when clicked
+            onClick={() => signOut()}
           >
             ออกจากระบบ
           </DropdownItem>
@@ -250,61 +230,39 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ size = "sm" }) => {
   )
 }
 
-const LanguagesButton = () => {
-  const [selectedLanguage, setSelectedLanguage] = React.useState("TH");
-
-  const languages = [
-    { key: "th", display: "TH", name: "ไทย" },
-    { key: "en", display: "EN", name: "English" },
-    { key: "zh", display: "CN", name: "中文" },
-  ];
-
-  return (
-    <Dropdown
-      classNames={{
-        content: " min-w-[90px] p-1 font-[family-name:var(--font-line-seed-sans)]",
-      }}
-    >
-      <DropdownTrigger>
-        <Button
-          radius="full"
-          size="md"
-          isIconOnly
-          className="bg-transparent border-1.5 border-default-200 dark:border-default-200 text-zinc-400 dark:text-zinc-400 font-bold"
-        >
-          {selectedLanguage}
-        </Button>
-      </DropdownTrigger>
-      <DropdownMenu
-        aria-label="Language selection"
-        color="primary"
-        onAction={(key) => setSelectedLanguage(languages.find(lang => lang.key === key)?.display || "TH")}
-        classNames={{
-          base: "w-[80px]",
-        }}
-        itemClasses={{
-          base: "text-center"
-        }}
-      >
-        {languages.map((lang) => (
-          <DropdownItem key={lang.key}>{lang.name}</DropdownItem>
-        ))}
-      </DropdownMenu>
-    </Dropdown>
-  )
-}
-
+// LanguagesTab คอมโพเนนต์ที่ใช้ i18n
 const LanguagesTab = () => {
+  const { t } = useTranslation();
+  const { changeLanguage } = useLanguage();
+
+  const handleTabChange = (key: Key) => {
+    switch (key) {
+      case "thai":
+        changeLanguage("th");
+        break;
+      case "english":
+        changeLanguage("en");
+        break;
+      case "chinese":
+        changeLanguage("zh");
+        break;
+    }
+  };
 
   return (
-    <Tabs aria-label="Tabs colors" color="primary" variant="underlined" placement="start"
+    <Tabs 
+      aria-label="Language Tabs" 
+      color="primary" 
+      variant="underlined"
+      placement="start"
       classNames={{
-        tabContent: "font-[family-name:var(--font-line-seed-sans)] text-md roup-data-[selected=true]:text-[#06b6d4]",
+        tabContent: "font-[family-name:var(--font-line-seed-sans)] text-md group-data-[selected=true]:text-[#06b6d4]",
       }}
+      onSelectionChange={handleTabChange}
     >
-      <Tab key="photos" title="ไทย" />
-      <Tab key="music" title="English" />
-      <Tab key="videos" title="中文" />
+      <Tab key="thai" title="ไทย" />
+      <Tab key="english" title="English" />
+      <Tab key="chinese" title="中文" />
     </Tabs>
   )
 }

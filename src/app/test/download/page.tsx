@@ -1,13 +1,11 @@
 "use client"
 
 import React from "react"
-
 import { Footer, NavBar } from "@/components"
 import { Button } from "@heroui/react"
-
 import { FiDownload } from "react-icons/fi"
 import { useTranslation } from 'react-i18next';
-import LanguageSelector from '@/app/translation/languageSelector';
+import { LanguageSelector } from '@/lib/i18n'; // แก้ไขการ import
 
 export default function Page() {
   return (
@@ -88,11 +86,11 @@ const DownlaodList = () => {
                   {/* Bottom row */}
                   <div className="flex-[4.5] flex flex-wrap justify-between text-sm items-start sm:items-center mt-4 sm:mt-0">
                     <div className="text-left mb-2 sm:mb-0">
-                      <div className="font-bold text-primary-color">File Size</div>
+                      <div className="font-bold text-primary-color">{t('fileSize')}</div>
                       <div>{file.size}</div>
                     </div>
                     <div className="text-left mb-2 sm:mb-0">
-                      <div className="font-bold text-primary-color">Release Date</div>
+                      <div className="font-bold text-primary-color">{t('releaseDate')}</div>
                       <div>{file.date}</div>
                     </div>
                     <div className="text-right">

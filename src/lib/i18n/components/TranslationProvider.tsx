@@ -1,9 +1,14 @@
 'use client';
 
 import { PropsWithChildren, useEffect, useState } from 'react';
-import '../i18n'; // Import the i18n configuration
+import '../config'; // Import the i18n configuration but don't need to capture it
 
-// This component ensures i18next is only initialized on the client side
+/**
+ * TranslationProvider component
+ * 
+ * Ensures i18next is only initialized on the client side to prevent hydration errors
+ * Wraps any components that need translation functionality
+ */
 export default function TranslationProvider({ children }: PropsWithChildren) {
   const [isClient, setIsClient] = useState(false);
 
@@ -17,6 +22,6 @@ export default function TranslationProvider({ children }: PropsWithChildren) {
     return <>{children}</>;
   }
 
-  // On the client, i18next is initialized
+  // On the client, i18next is initialized through the import
   return <>{children}</>;
 }
