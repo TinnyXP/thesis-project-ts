@@ -1,7 +1,7 @@
 // app/blog/[category]/page.tsx
 import React from "react";
 import { Footer, NavBar, CategoryCardServer } from "@/components";
-import { client } from "@/sanity/client";
+import { client } from "@/lib/sanity/client";
 import { Link } from "@heroui/react";
 
 const CategoryNotFound = () => (

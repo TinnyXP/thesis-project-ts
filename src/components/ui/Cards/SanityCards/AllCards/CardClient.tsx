@@ -1,47 +1,67 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardBody, CardFooter, Chip, Image, Pagination } from "@heroui/react";
+import { Post, formatThaiDate } from "@/lib/sanity";
 
-export interface Post {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  publishedAt: string;
-  mainImage?: { asset: { url: string } };
-  categories: Array<{
-    title: string;
-    slug: string;  // เปลี่ยนจาก slug object เป็น string เพราะใช้ coalesce ใน query แล้ว
-  }>;
+interface CardClientProps {
+  posts: Post[];
 }
 
-export default function NewsCardClient({ posts }: { posts: Post[] }) {
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [cardsPerPage, setCardsPerPage] = React.useState(6);
+/**
+ * คอมโพเนนต์แสดงการ์ดบทความพร้อมการแบ่งหน้า (client-side)
+ */
+export default function CardClient({ posts }: CardClientProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cardsPerPage, setCardsPerPage] = useState(6);
+  const [currentPosts, setCurrentPosts] = useState<Post[]>([]);
 
-  const totalCards = posts.length;
-  const totalPages = Math.ceil(totalCards / cardsPerPage);
+  // คำนวณจำนวนหน้าทั้งหมด
+  const totalPages = Math.ceil(posts.length / cardsPerPage);
 
-  React.useEffect(() => {
+  // ปรับจำนวนการ์ดต่อหน้าตามขนาดหน้าจอ
+  useEffect(() => {
     const updateCardsPerPage = () => {
       if (window.innerWidth >= 1024) {
-        setCardsPerPage(6);
+        setCardsPerPage(6); // large screens
       } else if (window.innerWidth >= 768) {
-        setCardsPerPage(4);
+        setCardsPerPage(4); // medium screens
       } else {
-        setCardsPerPage(3);
+        setCardsPerPage(3); // small screens
       }
     };
 
+    // เรียกใช้งานครั้งแรกและเมื่อมีการ resize
     updateCardsPerPage();
     window.addEventListener("resize", updateCardsPerPage);
+    
+    // Cleanup
     return () => window.removeEventListener("resize", updateCardsPerPage);
   }, []);
+
+  // อัพเดท posts ที่แสดงเมื่อมีการเปลี่ยนหน้าหรือจำนวนการ์ดต่อหน้า
+  useEffect(() => {
+    const indexOfLastPost = currentPage * cardsPerPage;
+    const indexOfFirstPost = indexOfLastPost - cardsPerPage;
+    setCurrentPosts(posts.slice(indexOfFirstPost, indexOfLastPost));
+  }, [currentPage, cardsPerPage, posts]);
+
+  // ถ้าไม่มีข้อมูลบทความ
+  if (!posts.length) {
+    return (
+      <div className="text-center py-10">
+        <h2 className="text-2xl font-bold mb-4">ไม่พบบทความ</h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          ขออภัย ยังไม่มีบทความในหมวดหมู่นี้
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-5">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {posts.map((post) => {
+        {currentPosts.map((post) => {
           // ถ้าไม่มี category หรือไม่มี slug ให้ใช้ uncategorized
           const categorySlug = post.categories?.[0]?.slug || 'uncategorized';
 
@@ -51,21 +71,22 @@ export default function NewsCardClient({ posts }: { posts: Post[] }) {
               isPressable
               isBlurred
               onPress={() => window.location.href = `/blog/${categorySlug}/${post.slug.current}`}
-              className="border-none bg-background/60 dark:bg-default-100/50"
+              className="border-none bg-background/60 dark:bg-default-100/50 hover:shadow-md transition-shadow duration-300"
             >
               <CardBody className="overflow-visible p-1.5">
                 <div className="relative">
                   {post.mainImage?.asset?.url ? (
                     <Image
                       alt={post.title}
-                      className="object-cover rounded-xl w-full h-auto"
+                      className="object-cover rounded-xl w-full h-auto aspect-video"
                       src={`${post.mainImage.asset.url}?w=768&auto=format`}
                       width={330}
                       height={180}
+                      loading="lazy"
                     />
                   ) : (
-                    <div className="w-[330px] h-[180px] bg-gray-200 rounded-xl flex items-center justify-center">
-                      <p className="text-gray-500 text-sm">No image available</p>
+                    <div className="w-full aspect-video bg-gray-200 rounded-xl flex items-center justify-center">
+                      <p className="text-gray-500 text-sm">ไม่มีรูปภาพ</p>
                     </div>
                   )}
                   <div className="absolute bottom-1 left-1 flex gap-2 z-10">
@@ -75,7 +96,7 @@ export default function NewsCardClient({ posts }: { posts: Post[] }) {
                         content: "text-white",
                       }}
                     >
-                      {post.categories?.[0]?.title || 'Uncategorized'}
+                      {post.categories?.[0]?.title || 'ไม่มีหมวดหมู่'}
                     </Chip>
                   </div>
                 </div>
@@ -85,7 +106,7 @@ export default function NewsCardClient({ posts }: { posts: Post[] }) {
                   <p className="w-full max-w-[320px] truncate text-sm uppercase font-bold">{post.title}</p>
                   <div className="flex items-center gap-2">
                     <small className="text-default-500">
-                      {new Date(post.publishedAt).toLocaleDateString()}
+                      {formatThaiDate(post.publishedAt)}
                     </small>
                   </div>
                 </div>
@@ -94,14 +115,17 @@ export default function NewsCardClient({ posts }: { posts: Post[] }) {
           );
         })}
       </div>
-      <Pagination
-        variant="light"
-        initialPage={1}
-        total={totalPages}
-        page={currentPage}
-        onChange={setCurrentPage}
-        classNames={{ item: "box-border" }}
-      />
+      
+      {totalPages > 1 && (
+        <Pagination 
+          variant="light" 
+          initialPage={1} 
+          total={totalPages} 
+          page={currentPage} 
+          onChange={setCurrentPage} 
+          classNames={{ item: "box-border" }} 
+        />
+      )}
     </div>
   );
 }
