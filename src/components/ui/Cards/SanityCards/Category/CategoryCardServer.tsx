@@ -1,46 +1,9 @@
-import { client } from "@/sanity/client";
+// src/components/ui/Cards/SanityCards/Category/CategoryCardServer.tsx
 import { CategoryCardClient } from "@/components";
 import { Link } from "@heroui/react";
+import { getPostsByCategory } from "@/lib/sanity";
 
-export interface Post {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  publishedAt: string;
-  mainImage?: { asset: { url: string } };
-  categories: Array<{
-    title: string;
-    slug: string;
-  }>;
-}
-
-const CATEGORY_POSTS_QUERY = `*[
-  _type == "post" && 
-  defined(slug.current) &&
-  $category in categories[]->slug.current
-] | order(publishedAt desc) {
-  _id,
-  title,
-  slug,
-  publishedAt,
-  "categories": categories[]->{
-    title,
-    "slug": coalesce(slug.current, 'uncategorized')
-  },
-  mainImage {
-    asset-> {
-      _ref,
-      url
-    }
-  }
-}`;
-
-const options = { 
-  next: { 
-    revalidate: 1,
-  } 
-};
-
+// Component แสดงข้อความเมื่อไม่พบบทความในหมวดหมู่
 const EmptyCategory = ({ category }: { category: string }) => (
   <div className="container mx-auto max-w-5xl flex-grow px-4 my-10 flex flex-col items-center justify-center gap-6 min-h-[40vh]">
     <div className="text-center">
@@ -55,14 +18,20 @@ const EmptyCategory = ({ category }: { category: string }) => (
   </div>
 );
 
+/**
+ * คอมโพเนนต์สำหรับแสดงบทความตามหมวดหมู่
+ */
 export default async function CategoryCardServer({ category }: { category: string }) {
   try {
-    const posts = await client.fetch<Post[]>(CATEGORY_POSTS_QUERY, { category }, options);
+    // ดึงบทความตามหมวดหมู่
+    const posts = await getPostsByCategory(category);
     
+    // หากไม่มีบทความในหมวดหมู่
     if (!posts || posts.length === 0) {
       return <EmptyCategory category={category} />;
     }
 
+    // ส่งข้อมูลไปให้ CategoryCardClient แสดงผล
     return <CategoryCardClient posts={posts} category={category} />;
   } catch (error) {
     console.error('Error fetching category posts:', error);

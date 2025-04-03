@@ -2,13 +2,16 @@
 
 import React from "react";
 import { Card, CardBody, CardFooter, Image, Pagination } from "@heroui/react";
-import type { Post } from "./CategoryCardServer";
+import { Post, formatThaiDate } from "@/lib/sanity";
 
 interface CategoryCardClientProps {
   posts: Post[];
   category: string;
 }
 
+/**
+ * คอมโพเนนต์สำหรับแสดงบทความตามหมวดหมู่แบบ client-side
+ */
 export default function CategoryCardClient({ posts, category }: CategoryCardClientProps) {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [cardsPerPage, setCardsPerPage] = React.useState(6);
@@ -16,6 +19,7 @@ export default function CategoryCardClient({ posts, category }: CategoryCardClie
   const totalCards = posts.length;
   const totalPages = Math.ceil(totalCards / cardsPerPage);
 
+  // ปรับจำนวนการ์ดต่อหน้าตามขนาดหน้าจอ
   React.useEffect(() => {
     const updateCardsPerPage = () => {
       if (window.innerWidth >= 1024) {
@@ -32,6 +36,7 @@ export default function CategoryCardClient({ posts, category }: CategoryCardClie
     return () => window.removeEventListener("resize", updateCardsPerPage);
   }, []);
 
+  // ถ้าไม่มีบทความในหมวดหมู่
   if (!posts.length) {
     return (
       <div className="text-center py-10">
@@ -43,10 +48,15 @@ export default function CategoryCardClient({ posts, category }: CategoryCardClie
     );
   }
 
+  // คำนวณบทความที่จะแสดงในหน้าปัจจุบัน
+  const indexOfLastPost = currentPage * cardsPerPage;
+  const indexOfFirstPost = indexOfLastPost - cardsPerPage;
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+
   return (
     <div className="flex flex-col items-center gap-5">      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {posts.map((post) => (
+        {currentPosts.map((post) => (
           <Card 
             key={post._id}
             isPressable 
@@ -75,7 +85,7 @@ export default function CategoryCardClient({ posts, category }: CategoryCardClie
                   {post.title}
                 </p>
                 <small className="text-default-500">
-                  {new Date(post.publishedAt).toLocaleDateString()}
+                  {formatThaiDate(post.publishedAt)}
                 </small>
               </div>
             </CardFooter>
@@ -83,14 +93,16 @@ export default function CategoryCardClient({ posts, category }: CategoryCardClie
         ))}
       </div>
       
-      <Pagination 
-        variant="light" 
-        initialPage={1} 
-        total={totalPages} 
-        page={currentPage} 
-        onChange={setCurrentPage} 
-        classNames={{ item: "box-border" }} 
-      />
+      {totalPages > 1 && (
+        <Pagination 
+          variant="light" 
+          initialPage={1} 
+          total={totalPages} 
+          page={currentPage} 
+          onChange={setCurrentPage} 
+          classNames={{ item: "box-border" }} 
+        />
+      )}
     </div>
   );
 }
